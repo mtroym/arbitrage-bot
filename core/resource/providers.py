@@ -9,7 +9,7 @@ class ProviderWarpper:
         self.description = conf.get("description", "-")
         self.endpoint_uri = conf.get("endpoint") \
             .replace("$ALCHEMY_API_KEY", os.getenv("ALCHEMY_API_KEY"))
-        
+
         self.symbol = conf.get("symbol", "UNK")
         if conf.get("type", "evm") == "evm":
             self.rpc: Web3 = Web3(HTTPProvider(
@@ -54,14 +54,15 @@ class Web3RPCProvider(object):
 
     def get_rpc_list(self) -> list[Web3]:
         return [(n, self.Rpcs[n].rpc) for n in self.Rpcs]
-    
+
 
 # Example usage
 if __name__ == "__main__":
     import json
     import dotenv
     dotenv.load_dotenv(".env", verbose=True)
-    rpcs = Web3RPCProvider(networks=["eth_sepolia", "opt_sepolia", "base_mainnet"])
+    rpcs = Web3RPCProvider(
+        networks=["eth_sepolia", "opt_sepolia", "base_mainnet"])
     table_member = ["name", "chain_id", "description", "symbol"]
     rows = [
         [rpc.__getattribute__(n) for n in table_member]

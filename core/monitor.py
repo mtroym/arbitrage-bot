@@ -6,12 +6,14 @@ from hexbytes import (
 )
 from json import JSONEncoder
 
+
 class Encoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, HexBytes):
             return o.to_0x_hex()
         return o.__dict__
-    
+
+
 class BlockMonitorDaemon:
     def __init__(self, provider: Web3RPCProvider, network):
         self.w3 = provider.get_network_rpc(network=network)
@@ -22,20 +24,23 @@ class BlockMonitorDaemon:
         # Fetch block details
         block: BlockData = self.w3.eth.get_block(block_identifier)
         txns: list[HexBytes] = block["transactions"]
-        print(f"New block received: {block['number']} with hash: {block['hash'].hex()}")
+        print(
+            f"New block received: {block['number']} with hash: {block['hash'].hex()}")
         print("txns: {}".format(len(txns)))
         tasks = []
         for txn in txns:
             txn_hash = txn.to_0x_hex()
             task = asyncio.create_task(self.handle_tx(txn_hash))
             tasks.append(task)
-        
+
         for task in tasks:
             await task
 
     async def handle_tx(self, txn_hash: str):
-        txn_data: TxData = self.w3.eth.get_transaction(transaction_hash=txn_hash)
-        txn_receicpt: TxReceipt = self.w3.eth.get_transaction_receipt(transaction_hash=txn_hash)
+        txn_data: TxData = self.w3.eth.get_transaction(
+            transaction_hash=txn_hash)
+        txn_receicpt: TxReceipt = self.w3.eth.get_transaction_receipt(
+            transaction_hash=txn_hash)
         # print("from", tx_data["from"], "to", tx_data["to"])
         print(Encoder(indent=2).encode(txn_data))
         print(Encoder(indent=2).encode(txn_receicpt))

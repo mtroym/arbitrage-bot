@@ -64,7 +64,8 @@
         "description": "Linea Mainnet",
         "symbol": "ETH",
         "endpoint": "https://linea-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
-        "explorer": ""
+        "explorer": "",
+        "is_poa": true
     },
     {
         "name": "mantle_mainnet",

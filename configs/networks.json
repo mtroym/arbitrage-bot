@@ -115,6 +115,7 @@
         "description": "Acalanche Mainnet C-chain",
         "symbol": "AVAX",
         "endpoint": "https://api.avax.network/ext/bc/C/rpc",
-        "explorer": "https://subnets.avax.network/c-chain"
+        "explorer": "https://subnets.avax.network/c-chain",
+        "is_poa": true
     }
 ]

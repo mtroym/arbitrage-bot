@@ -31,3 +31,6 @@ format:
 	@echo "Formatting Python code with pep8..."
 	@python3 -m autopep8 ./ -r --in-place
 	@echo "$(GREEN)Done!$(RESET)"
+
+run:
+	@PYTHONPATH=$(PYTHONPATH):core python3 main.py

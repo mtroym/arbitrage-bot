@@ -32,5 +32,11 @@ format:
 	@python3 -m autopep8 ./ -r --in-place
 	@echo "$(GREEN)Done!$(RESET)"
 
+CHAIN_OPTION ?= base_mainnet
+
 run:
-	@PYTHONPATH=$(PYTHONPATH):core python3 main.py
+	@echo "running monitor with $(CHAIN_OPTION)"
+	@PYTHONPATH=$(PYTHONPATH):core python3 main.py --chain ${CHAIN_OPTION}
+
+network:
+	@python3 core/resource/providers.py

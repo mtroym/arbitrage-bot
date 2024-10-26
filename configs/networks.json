@@ -20,6 +20,12 @@
         "symbol": "ETH"
     },
     {
+        "name": "opt_mainnet",
+        "description": "Optimism Mainnet",
+        "endpoint": "https://opt-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "symbol": "ETH"
+    },
+    {
         "name": "eth_sepolia",
         "description": "Ethereum Sepolia Testnet",
         "endpoint": "https://eth-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY",
@@ -38,5 +44,76 @@
         "chain_id": 8453,
         "endpoint": "https://base-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
         "explorer": "https://basescan.org"
+    },
+    {
+        "name": "blast_mainnet",
+        "description": "Blast Mainnet",
+        "symbol": "ETH",
+        "endpoint": "https://blast-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "unichain_sepolia",
+        "description": "Unichain Sepolia Testnet",
+        "symbol": "uni_test_ETH",
+        "endpoint": "https://unichain-sepolia.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "linea_mainnet",
+        "description": "Linea Mainnet",
+        "symbol": "ETH",
+        "endpoint": "https://linea-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "mantle_mainnet",
+        "description": "Mantle Mainnet",
+        "symbol": "MNT",
+        "endpoint": "https://mantle-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "fantom_opera",
+        "description": "Fantom Opera Mainnet",
+        "symbol": "FTM",
+        "endpoint": "https://fantom-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "worldchain_mainnet",
+        "description": "WorldChain Mainnet",
+        "symbol": "ETH",
+        "endpoint": "https://worldchain-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "scroll_mainnet",
+        "description": "Scroll Mainnet",
+        "symbol": "ETH",
+        "endpoint": "https://scroll-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": "",
+        "is_poa": true
+    },
+    {
+        "name": "bera_bartio",
+        "description": "Berachain bArtio Testnet",
+        "symbol": "BERA",
+        "endpoint": "https://berachain-bartio.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": "https://bartio.beratrail.io/"
+    },
+    {
+        "name": "shape_mainnet",
+        "description": "Shape Mainnet",
+        "symbol": "ETH",
+        "endpoint": "https://shape-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY",
+        "explorer": ""
+    },
+    {
+        "name": "avalanche_mainnet",
+        "description": "Acalanche Mainnet C-chain",
+        "symbol": "AVAX",
+        "endpoint": "https://api.avax.network/ext/bc/C/rpc",
+        "explorer": "https://subnets.avax.network/c-chain"
     }
 ]

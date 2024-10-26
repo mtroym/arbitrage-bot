@@ -2,6 +2,7 @@ from typing import Union
 from web3 import Web3, HTTPProvider
 import json
 import os
+from web3.middleware import ExtraDataToPOAMiddleware
 
 
 class ProviderWarpper:
@@ -9,8 +10,8 @@ class ProviderWarpper:
         self.description = conf.get("description", "-")
         self.endpoint_uri = conf.get("endpoint") \
             .replace("$ALCHEMY_API_KEY", os.getenv("ALCHEMY_API_KEY"))
+        self.is_poa = conf.get("is_poa", False)
 
-        self.symbol = conf.get("symbol", "UNK")
         if conf.get("type", "evm") == "evm":
             self.rpc: Web3 = Web3(HTTPProvider(
                 endpoint_uri=self.endpoint_uri, request_kwargs={"timeout": 60}))
@@ -19,12 +20,16 @@ class ProviderWarpper:
             raise ValueError(
                 "not found provider type: {}".format(conf.get("type")))
 
+        if self.is_poa:
+            self.rpc.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
         self.name = conf.get("name", conf.get(
             "chain_id", "evm_chain-{}".format(self.chain_id)))
 
         assert self.chain_id == conf.get("chain_id", self.chain_id), \
             "chain id not match, remote: {}, config: {}".format(
                 self.chain_id, conf.get("chain_id"))
+
+        self.symbol = conf.get("symbol", "UNK")
 
 
 class Web3RPCProvider(object):
@@ -39,12 +44,13 @@ class Web3RPCProvider(object):
         self.Rpcs = dict()
         self.network_name_list = networks if networks is not None else []
 
+        init_name = len(self.network_name_list) > 0
         for conf in self.network_conf:
             network_name = conf.get("name", None)
-            if len(self.network_name_list) != 0 and \
-                    (network_name is not None) and (network_name in self.network_name_list):
-                p = ProviderWarpper(conf)
-                self.Rpcs[p.name] = p
+            if not init_name:
+                self.network_name_list.append(network_name)
+            if network_name in self.network_name_list:
+                self.Rpcs[network_name] = ProviderWarpper(conf)
 
     def get_network_rpc(self, network: str) -> Union[Web3]:
         assert network in self.Rpcs, \
@@ -61,8 +67,7 @@ if __name__ == "__main__":
     import json
     import dotenv
     dotenv.load_dotenv(".env", verbose=True)
-    rpcs = Web3RPCProvider(
-        networks=["eth_sepolia", "opt_sepolia", "base_mainnet"])
+    rpcs = Web3RPCProvider()
     table_member = ["name", "chain_id", "description", "symbol"]
     rows = [
         [rpc.__getattribute__(n) for n in table_member]

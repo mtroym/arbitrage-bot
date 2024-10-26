@@ -15,7 +15,7 @@ arbitrage bot built on web3py.
 
 ## run
 
-`$ make run` with run monitor with default `'eth_mainnet'`
+`$ make run` to run monitor with default `'eth_mainnet'`
 
 or
 

@@ -5,6 +5,8 @@ from hexbytes import (
     HexBytes,
 )
 from json import JSONEncoder
+import concurrent.futures
+import time
 
 
 class Encoder(JSONEncoder):
@@ -20,30 +22,32 @@ class BlockMonitorDaemon:
         if not self.w3.is_connected():
             raise Exception("Failed to connect to the Ethereum node.")
 
-    async def handle_new_block(self, block_identifier):
+    def handle_new_block(self, block_identifier):
         # Fetch block details
+        start = time.time()
         block: BlockData = self.w3.eth.get_block(block_identifier)
         txns: list[HexBytes] = block["transactions"]
-        print(
-            f"New block received: {block['number']} with hash: {block['hash'].hex()}")
-        print("txns: {}".format(len(txns)))
-        tasks = []
-        for txn in txns:
-            txn_hash = txn.to_0x_hex()
-            task = asyncio.create_task(self.handle_tx(txn_hash))
-            tasks.append(task)
+        print(f"blk No.{block['number']} w/ {len(txns)} txns")
+        if len(txns) <= 0:
+            print("skip with empty txns in this block.")
+            return
 
-        for task in tasks:
-            await task
+        with concurrent.futures.ThreadPoolExecutor(max_workers=24) as executor:
+            futures = {executor.submit(self.handle_tx, txn.to_0x_hex())
+                       for txn in txns}
+            for f in concurrent.futures.as_completed(futures):
+                f.result()
+        processing_latency = time.time() - start
+        print("done, latency: {:.2f}s, {:.1f}ms/txn".format(
+            processing_latency, processing_latency * 1000 / len(txns)))
 
-    async def handle_tx(self, txn_hash: str):
-        txn_data: TxData = self.w3.eth.get_transaction(
-            transaction_hash=txn_hash)
-        txn_receicpt: TxReceipt = self.w3.eth.get_transaction_receipt(
-            transaction_hash=txn_hash)
+    def handle_tx(self, txn_hash: str):
+        txn_data: TxData = self.w3.eth.get_transaction(txn_hash)
+        txn_receicpt: TxReceipt = self.w3.eth.get_transaction_receipt(txn_hash)
         # print("from", tx_data["from"], "to", tx_data["to"])
-        print(Encoder(indent=2).encode(txn_data))
-        print(Encoder(indent=2).encode(txn_receicpt))
+        Encoder(indent=2).encode(txn_data)
+        Encoder(indent=2).encode(txn_receicpt)
+        # print("done txn", txn_hash)
 
     async def monitor_blocks(self):
         # Get the latest block number
@@ -53,13 +57,19 @@ class BlockMonitorDaemon:
         while True:
             # Check for new blocks
             current_block = self.w3.eth.block_number
-            print("block lags:", current_block - latest_block)
-            if current_block > latest_block:
-                for block_query in range(latest_block, current_block):
-                    await self.handle_new_block(block_query+1)
-                latest_block = current_block
+            if current_block <= latest_block:
+                await asyncio.sleep(0.1)  # Polling interval
+                continue
 
-            await asyncio.sleep(0.1)  # Polling interval
+            print("block lags:", current_block - latest_block)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+                futures = {executor.submit(self.handle_new_block, block_query+1)
+                           for block_query in range(latest_block, current_block)
+                           }
+                for f in concurrent.futures.as_completed(futures):
+                    f.result()
+                print("batch done")
+            latest_block = current_block
 
     def run(self):
         loop = asyncio.get_event_loop()
@@ -68,8 +78,8 @@ class BlockMonitorDaemon:
 
 # Example usage
 if __name__ == "__main__":
-    provider = Web3RPCProvider(networks=["eth_sepolia"])
-    monitor = BlockMonitorDaemon(provider=provider, network="eth_sepolia")
+    provider = Web3RPCProvider(networks=["eth_mainnet"])
+    monitor = BlockMonitorDaemon(provider=provider, network="eth_mainnet")
     try:
         monitor.run()
     except KeyboardInterrupt:
